@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cognitive Performance Tests</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <section id="welcome">
+        <h1>Welcome!</h1>
+        <p>This website contains three cognitive performance tests.
+            <br> Click <strong>BEGIN</strong> to start whenever you're ready.</p>
+        <button class="button" id="startButton">BEGIN</button>
+    </section>
+
+    <section id="reaction">
+        <div id="reactionInstructions">
+            <h1>REACTION TIME</h1>
+            <p>Click start for the first test. The goal is to click as fast as you can after the screen turns green.</p>
+            <button class="button" id="reactionStart">START TEST</button>
+        <h1>REACTION TIME</h1>
+        <p>Click start for the first test. The goal is to click as fast as you can after the screen turns green.</p>
+        <button class="button" id="reactionStart">START TEST</button>
+        </div>
+        <div id="reactionGameplay" style="display: none;">
+            <h1 id="reactionMessage">Click to begin</h1>
+        </div>
+    </section>
+
+    <section id="memory">
+        <h1>MEMORY</h1>
+        <p>Click start for the memory test. You will be shown a sequence of numbers and then asked to recall them.</p>
+    </section>
+
+    <section id="stroop">
+        <h1>Stroop</h1>
+    </section>
+</body>
+</html>
