@@ -1,24 +1,18 @@
+const DEBUG_MODE = true;
 const startButton = document.getElementById("startButton");
-let reactionTimes = [];
+const reactionMessage = document.getElementById("reactionMessage");
+
 const totalTrials = 10;
+let reactionTimes = [];
 
-function showSection(sectionId) {
-    document.querySelectorAll("section").forEach(function(section) {
-        section.style.display = "none";
-    });
-    const section = document.getElementById(sectionId);
-    section.style.display = "block";
-}
+let reactionState = "idle";
+let greenTime = 0;
+let reactionTimer;
 
-startButton.addEventListener("click", function() {
-    event.stopPropagation();
-    document.documentElement.requestFullscreen();
-    showSection("reaction");
-});
-
-function setBackground(color) {
-    document.documentElement.style.setProperty("--background-color", color);
-}
+let Reaction = 0;
+let memoryResults = 0;
+let ACRT = 0;
+let averageStroopAccuracy = 0;
 
 const COLORS = {
     default: "#19222d",
@@ -28,26 +22,52 @@ const COLORS = {
     result: "#0389ff"
 };
 
+// Display Functions
+
+function showSection(sectionId) {
+    document.querySelectorAll("section").forEach(function(section) {
+        section.style.display = "none";
+    });
+
+    const section = document.getElementById(sectionId);
+    section.style.display = "block";
+}
+
+function setBackground(color) {
+    document.documentElement.style.setProperty("--background-color", color);
+}
+
+// Reaction Time Functions
+
 function startReactionTrial() {
     reactionState = "waiting";
+
     setBackground(COLORS.waiting);
+
     reactionMessage.textContent = "Wait for green...";
     reactionProgress.textContent = `Trial ${reactionTimes.length + 1}/${totalTrials}`;
+
     const delay = 2000 + Math.random() * 3000;
 
     reactionTimer = setTimeout(function() {
         reactionState = "ready";
         setBackground(COLORS.ready);
         reactionMessage.textContent = "Click!";
+
         greenTime = performance.now();
     }, delay);
 }
 
-let reactionState = "idle";
+// Setup
 setBackground(COLORS.default);
-let greenTime = 0;
-let reactionTimer;
-const reactionMessage = document.getElementById("reactionMessage");
+
+// Start Button Event Listener
+startButton.addEventListener("click", function(event) {
+    event.stopPropagation();
+    showSection("reaction");
+});
+
+//Reaction Start Event Listener
 document.getElementById("reactionStart").addEventListener("click", function(event) {
     event.stopPropagation();
 
@@ -56,6 +76,7 @@ document.getElementById("reactionStart").addEventListener("click", function(even
     startReactionTrial();
 });
 
+// Reaction Gameplay Event Listener
 document.body.addEventListener("click", function() {
     const reactionSection = document.getElementById("reaction");
 
@@ -68,6 +89,8 @@ document.body.addEventListener("click", function() {
     if (reactionSection.style.display !== "block") {
         return;
     }
+
+    // False Start
     if (reactionState === "waiting") {
         clearTimeout(reactionTimer);
         console.log("Too early!");
@@ -92,13 +115,16 @@ document.body.addEventListener("click", function() {
             }
 
             const average = total / reactionTimes.length;
+            reaction = average.toFixed(0);
             setBackground(COLORS.default);
             console.log("Average reaction time: " + average.toFixed(0) + " ms");
             reactionState = "complete";
             reactionMessage.textContent = `Average: ${average.toFixed(0)} ms`;
             reactionProgress.textContent = "10/10 Complete!";
+            document.getElementById("reactionEnd").style.display = "block";
             return;
         }
+        //Display Result
         setBackground(COLORS.result);
         reactionMessage.textContent = reactionTime.toFixed(0) + " ms";
         console.log(reactionTime);
@@ -110,9 +136,324 @@ document.body.addEventListener("click", function() {
             startReactionTrial();
         }, 1500);
         return;
+    
     }
+
+    // Idle
     if (reactionState !== "idle") {
         return;
     }
     startReactionTrial();
+});
+
+// Memory
+const memoryDigits = 12;
+const totalMemoryTrials = 3;
+let memoryScores = [];
+let memorySummaryShown = false;
+
+function generateMemorySequence() {
+    let sequence = "";
+    for (let i = 0; i < memoryDigits; i++) {
+        sequence += Math.floor(Math.random() * 10).toString();
+    }
+    return sequence;
+}
+
+//Start Memory Test
+const showMemory = document.getElementById("showMemory");
+let currentMemorySequence = "";
+let memoryAcceptingAnswers = false;
+
+showMemory.addEventListener("click", function(event) {
+    event.stopPropagation();
+    showSection("memory");
+})
+
+document.getElementById("memoryStart").addEventListener("click", function(event) {
+    event.stopPropagation();
+
+    document.getElementById("memoryInstructions").style.display = "none";
+    document.getElementById("memoryGameplay").style.display = "block";
+    document.getElementById("memoryTimer").style.display = "block";
+    startMemoryTrial();
+});
+
+function startMemoryTrial() {
+    let seconds = 10;
+    currentMemorySequence = generateMemorySequence();
+    document.getElementById("memorySequence").textContent = currentMemorySequence;
+    document.getElementById("memoryTimer").style.display = "block";
+    document.getElementById("memoryTimer").textContent = "10 seconds remaining";
+    document.getElementById("memoryRecall").style.display = "none";
+    
+    document.getElementById("memoryInput").value = "";
+    const timer = setInterval(function() {
+        seconds--;
+        console.log(seconds);
+        document.getElementById("memoryTimer").textContent = seconds + " seconds remaining";
+        if (seconds === 0) {
+            clearInterval(timer);
+            document.getElementById("memorySequence").textContent = "";
+            document.getElementById("memoryTimer").textContent = "Time's up!";
+            document.getElementById("memoryRecall").style.display = "block";
+            memoryAcceptingAnswers = true;
+        }
+    }, 1000);
+}
+
+document.getElementById("memorySubmit").addEventListener("click", function() {
+    if (!memoryAcceptingAnswers) return;
+    const answer = document.getElementById("memoryInput").value;
+    if (!/^\d{1,12}$/.test(answer)) {
+        alert("Please enter between 1 and 12 digits.");
+        return;
+    }
+    console.log("Participant's answer:", answer);
+
+    let correctDigits = 0;
+    for (let i = 0; i < memoryDigits; i++) {
+        if (answer[i] === currentMemorySequence[i]) {
+            correctDigits++;
+        }
+    }
+    console.log("Correct digits:", correctDigits);
+    console.log("Accuracy:", (correctDigits / memoryDigits * 100).toFixed(2) + "%");
+    const accuracy = correctDigits / memoryDigits;
+    memoryAcceptingAnswers = false;
+    memoryScores.push(accuracy);
+    document.getElementById("memoryRecall").style.display = "none";
+    document.getElementById("memoryNext").style.display = "block";
+    document.getElementById("memoryResults").style.display = "block";
+    document.getElementById("memoryTimer").style.display = "none";
+    document.getElementById("memoryScore").textContent = "Accuracy: " + (accuracy * 100).toFixed(2) + "% (" + correctDigits + "/" + memoryDigits + ")";
+    document.getElementById("memoryResults").style.display = "block";
+});
+
+const memoryNext = document.getElementById("memoryNext");
+
+memoryNext.addEventListener("click", function() {
+    if (memoryScores.length >= totalMemoryTrials) {
+        if (memorySummaryShown) {
+            showSection("stroop");
+            return;
+        }
+
+        let totalAccuracy = 0;
+
+        for (let score of memoryScores) {
+            totalAccuracy += score;
+        }
+
+        const averageAccuracy = totalAccuracy / memoryScores.length;
+        memoryResults = (averageAccuracy * 100).toFixed(2);
+        document.getElementById("memoryResults").style.display = "block";
+        document.getElementById("memoryScore").textContent =
+            `Final Average Accuracy: ${(averageAccuracy * 100).toFixed(2)}%`;
+        memorySummaryShown = true;
+        return;
+    }
+
+    document.getElementById("memoryResults").style.display = "none";
+    startMemoryTrial();
+});
+
+//Hotkeys for Debug Mode
+document.addEventListener("keydown", function(event) {
+    if (!DEBUG_MODE) return;
+    if (!event.ctrlKey || !event.shiftKey) return;
+
+    switch (event.code) {
+        case "Digit1":
+            showSection("reaction");
+            break;
+
+        case "Digit2":
+            showSection("memory");
+            break;
+
+        case "Digit3":
+            showSection("stroop");
+            break;
+
+        case "Digit4":
+            showSection("end");
+            console.log("Reaction:", typeof Reaction);
+            console.log("Memory:", typeof memoryResults);
+            console.log("Stroop Time:", typeof ACRT);
+            console.log("Stroop Accuracy:", typeof averageStroopAccuracy);
+            document.getElementById("finalResults").textContent =
+                `Reaction Time: ${Reaction} ms\n` +
+                `Memory Accuracy: ${memoryResults}%\n` +
+                `Stroop Response Time: ${ACRT} ms\n` +
+                `Stroop Accuracy: ${averageStroopAccuracy}%`;
+            break;
+
+        default:
+            return;
+    }
+
+    event.preventDefault();
+});
+
+//STROOP!
+const stroopColors = ["red", "yellow", "blue", "green"];
+const stroopColorHex = {
+    red: "#ff3232",
+    yellow: "#ffff00",
+    blue: "#0389ff",
+    green: "#00cc00"
+};
+let currentStroopColor = "";
+
+function generateStroopItem() {
+    const word = stroopColors[
+        Math.floor(Math.random() * stroopColors.length)
+    ].toUpperCase();
+
+    const textColor = stroopColors[
+        Math.floor(Math.random() * stroopColors.length)
+    ];
+
+    return { word, textColor };
+}
+
+function showStroopItem() {
+    document.getElementById("stroopFeedback").textContent = "";
+    const item = generateStroopItem();
+
+    document.getElementById("stroopWord").textContent = item.word;
+    document.getElementById("stroopWord").style.color = stroopColorHex[item.textColor];
+    document.getElementById("stroopProgress").textContent =
+        `Trial ${stroopResults.length + 1}/${totalStroopTrials}`;
+    document.getElementById("stroopWord").style.visibility = "visible";
+    stroopStartTime = performance.now();
+    currentStroopColor = item.textColor;
+}
+
+stroopStart.addEventListener("click", function(event) {
+    event.stopPropagation();
+    let stroopAcceptingAnswers = false;
+    document.getElementById("stroopInstructions").style.display = "none";
+    document.getElementById("stroopGameplay").style.display = "block";
+    startStroopCountdown();
+});
+
+const stroopButtons = document.querySelectorAll("#stroopButtons button");
+const stroopKeys = {
+    r: "red",
+    y: "yellow",
+    b: "blue",
+    g: "green"
+};
+
+stroopButtons.forEach(function(button) {
+    button.addEventListener("click", function() {
+        const selectedColor = button.dataset.color;
+        submitStroopAnswer(selectedColor);
+    });
+});
+
+function submitStroopAnswer(answer) {
+    if (!stroopAcceptingAnswers) return;
+    let stroopAcceptingAnswers = false;
+    console.log("Selected:", answer);
+    console.log("Correct:", currentStroopColor);
+    const responseTime = performance.now() - stroopStartTime;
+    const isCorrect = answer === currentStroopColor;
+    const feedback = document.getElementById("stroopFeedback");
+
+    feedback.textContent = isCorrect ? "Correct!" : "Incorrect!";
+    feedback.style.color = isCorrect ? "#00cc00" : "#ff3232";
+    if (answer === currentStroopColor) {
+        console.log("Correct!");
+    } else {
+        console.log("Incorrect!");
+    }
+    stroopResults.push({
+        correct: isCorrect,
+        time: responseTime
+    });
+
+    if (stroopResults.length >= totalStroopTrials) {
+        finishStroopTest();
+    } else {
+        setTimeout(function() {
+            showStroopItem();
+            let stroopAcceptingAnswers = true;
+        }, 250);
+    }
+}
+
+document.addEventListener("keydown", function(event) {
+    if (event.repeat) return;
+    const gameplay = document.getElementById("stroopGameplay");
+    const section = document.getElementById("stroop");
+
+    if (section.style.display !== "block") return;
+    if (gameplay.style.display !== "block") return;
+
+    const key = event.key.toLowerCase();
+
+    if (stroopKeys[key]) {
+        submitStroopAnswer(stroopKeys[key]);
+    }
+});
+
+const totalStroopTrials = 30;
+let stroopResults = [];
+let stroopStartTime = 0;
+
+function finishStroopTest() {
+    stroopAcceptingAnswers = false;
+    document.getElementById("stroopGameplay").style.display = "none";
+    document.getElementById("stroopResults").style.display = "block";
+    const correctTrials = stroopResults.filter(function(result) {
+        return result.correct;
+    });
+    const accuracy = correctTrials.length / stroopResults.length;
+    console.log("Stroop test complete", stroopResults);
+    console.log("Accuracy:", accuracy);
+    document.getElementById("stroopAccuracy").textContent = "Accuracy: " +(accuracy * 100).toFixed(2) + "%";
+    averageStroopAccuracy = (accuracy * 100).toFixed(2);
+    const averageTime = correctTrials.length > 0
+    ? correctTrials.reduce((sum, result) => sum + result.time, 0) / correctTrials.length
+    : null;
+    document.getElementById("stroopAverageTime").textContent =
+    "Average Correct Response Time: " + (averageTime === null ? "N/A" : averageTime.toFixed(0) + " ms");
+    ACRT = averageTime === null ? "N/A" : averageTime.toFixed(0);
+}
+
+function startStroopCountdown() {
+    let seconds = 3;
+    const countdown = document.getElementById("stroopCountdown");
+
+    countdown.style.display = "block";
+    countdown.textContent = seconds;
+
+    const interval = setInterval(function() {
+        seconds--;
+
+        if (seconds > 0) {
+            countdown.textContent = seconds;
+        } else {
+            clearInterval(interval);
+            countdown.style.display = "none";
+            document.getElementById("stroopActiveTest").style.display = "block";
+            showStroopItem();
+            let stroopAcceptingAnswers = true;
+        }
+    }, 1000);
+}
+
+finish.addEventListener("click", function(event) {
+    event.stopPropagation();
+
+    showSection("end");
+
+    document.getElementById("finalResults").textContent =
+        `Reaction Time: ${Reaction} ms\n` +
+        `Memory Accuracy: ${memoryResults}%\n` +
+        `Stroop Response Time: ${ACRT} ms\n` +
+        `Stroop Accuracy: ${averageStroopAccuracy}%`;
 });

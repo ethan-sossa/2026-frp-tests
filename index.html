@@ -17,23 +17,78 @@
 
     <section id="reaction">
         <div id="reactionInstructions">
-        <h1>REACTION TIME</h1>
+        <h1>REACTION TIME TEST</h1>
         <p>Click start for the first test. The goal is to click as fast as you can after the screen turns green.</p>
         <button class="button" id="reactionStart">START TEST</button>
         </div>
         <div id="reactionGameplay" style="display: none;">
             <h1 id="reactionMessage">Click to begin</h1>
             <p id="reactionProgress"></p>
+            <div id="reactionEnd" style="display: none;"><button class="button" id="showMemory">CONTINUE</button></div>
         </div>
     </section>
 
     <section id="memory">
-        <h1>MEMORY</h1>
-        <p>Click start for the memory test. You will be shown a sequence of numbers and then asked to recall them.</p>
+        <div id="memoryInstructions">
+            <h1>MEMORY TEST</h1>
+            <p>Click start for the memory test. You will have 10 seconds to memorize twelve numbers.</p>
+            <button class="button" id="memoryStart">START TEST</button>
+        </div>
+        <div id="memoryGameplay" style="display: none;">
+            <h1 id="memorySequence" style="font-family: monospace;"></h1>
+            <p id="memoryTimer"></p>
+        </div>
+        <div id="memoryRecall" style="display: none;">
+            <h2>Enter the digits you remember:</h2>
+            <input
+                type="text"
+                id="memoryInput"
+                inputmode="numeric"
+                maxlength="12"
+                autocomplete="off"
+            >
+            <button class="button" id="memorySubmit">SUBMIT</button>
+        </div>
+        <div id="memoryResults" style="display: none;">
+            <p id="memoryScore"></p>
+            <button class="button" id="memoryNext">CONTINUE</button>
+        </div>
     </section>
 
     <section id="stroop">
-        <h1>Stroop</h1>
+        <div id="stroopInstructions">
+            <h1>STROOP TEST</h1>
+            <p>Click start for the Stroop test. You will be shown a color word in a different color.
+                <br> Use the R, Y, B, and G keys (<span style="color: #ff3232;">Red</span>, <span style="color: yellow;">Yellow</span>, <span style="color: #0389ff;">Blue</span>, <span style="color: #00cc00;">Green</span>) to indicate the color of the text as quickly as possible, or click the corresponding button.
+                <br> There will be 30 trials.
+            </p>
+            <button class="button" id="stroopStart">START TEST</button>
+        </div>
+        <div id="stroopGameplay" style="display: none;">
+            <h1 id="stroopCountdown" style="display: none;"></h1>
+            <div id="stroopActiveTest" style="display: none;">
+                <p id="stroopProgress"></p>
+                <h1 id="stroopWord"></h1>
+                <p id="stroopFeedback"></p>
+                <div id="stroopButtons">
+                    <button class="button" data-color="red">RED</button>
+                    <button class="button" data-color="yellow">YELLOW</button>
+                    <button class="button" data-color="blue">BLUE</button>
+                    <button class="button" data-color="green">GREEN</button>
+                </div>
+            </div>
+        </div>
+        <div id="stroopResults" style="display: none;">
+            <p>Stroop test complete!</p>
+            <p id="stroopAccuracy"></p>
+            <p id="stroopAverageTime"></p>
+            <button class="button" id="finish">FINISH</button>
+        </div>
+    </section>
+    <section id="end" style="display: none;">
+        <h1>Thank you!</h1>
+        <p>The test has concluded.</p>
+        <p id="finalResults"></p>
     </section>
 </body>
 </html>
