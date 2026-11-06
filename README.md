@@ -1,2 +1,2 @@
-# 2026-frp-tests
-Cognitive Tests for 2026 FRP.
+# FRP Cognitive Tests
+Collection of three cognitive tests used for a research project.
