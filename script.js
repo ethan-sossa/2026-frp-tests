@@ -115,7 +115,7 @@ document.body.addEventListener("click", function() {
             }
 
             const average = total / reactionTimes.length;
-            reaction = average.toFixed(0);
+            Reaction = average.toFixed(0);
             setBackground(COLORS.default);
             console.log("Average reaction time: " + average.toFixed(0) + " ms");
             reactionState = "complete";
@@ -305,6 +305,7 @@ const stroopColorHex = {
     green: "#00cc00"
 };
 let currentStroopColor = "";
+let stroopAcceptingAnswers = false;
 
 function generateStroopItem() {
     const word = stroopColors[
@@ -333,7 +334,7 @@ function showStroopItem() {
 
 stroopStart.addEventListener("click", function(event) {
     event.stopPropagation();
-    let stroopAcceptingAnswers = false;
+    stroopAcceptingAnswers = false;
     document.getElementById("stroopInstructions").style.display = "none";
     document.getElementById("stroopGameplay").style.display = "block";
     startStroopCountdown();
@@ -356,7 +357,7 @@ stroopButtons.forEach(function(button) {
 
 function submitStroopAnswer(answer) {
     if (!stroopAcceptingAnswers) return;
-    let stroopAcceptingAnswers = false;
+    stroopAcceptingAnswers = false;
     console.log("Selected:", answer);
     console.log("Correct:", currentStroopColor);
     const responseTime = performance.now() - stroopStartTime;
@@ -380,7 +381,7 @@ function submitStroopAnswer(answer) {
     } else {
         setTimeout(function() {
             showStroopItem();
-            let stroopAcceptingAnswers = true;
+            stroopAcceptingAnswers = true;
         }, 250);
     }
 }
@@ -441,7 +442,7 @@ function startStroopCountdown() {
             countdown.style.display = "none";
             document.getElementById("stroopActiveTest").style.display = "block";
             showStroopItem();
-            let stroopAcceptingAnswers = true;
+            stroopAcceptingAnswers = true;
         }
     }, 1000);
 }
