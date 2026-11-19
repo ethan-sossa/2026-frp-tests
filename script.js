@@ -3,6 +3,8 @@ const startButton = document.getElementById("startButton");
 const reactionMessage = document.getElementById("reactionMessage");
 
 const totalTrials = 10;
+const totalMemoryTrials = 3;
+const totalStroopTrials = 30;
 let reactionTimes = [];
 
 let reactionState = "idle";
@@ -22,6 +24,18 @@ const COLORS = {
     result: "#0389ff"
 };
 
+const testOrders = [
+    ["reaction", "memory", "stroop"],
+    ["memory", "stroop", "reaction"],
+    ["stroop", "reaction", "memory"],
+    ["reaction", "stroop", "memory"],
+    ["stroop", "memory", "reaction"],
+    ["memory", "reaction", "stroop"]
+];
+
+const orderNumber = 1; // Change from 1 to 6
+let currentOrder = testOrders[0];
+
 // Display Functions
 
 function showSection(sectionId) {
@@ -33,8 +47,38 @@ function showSection(sectionId) {
     section.style.display = "block";
 }
 
+function nextTest(currentTest) {
+    const currentIndex = currentOrder.indexOf(currentTest);
+
+    if (currentIndex === -1) {
+        console.error("Unknown test:", currentTest);
+        return;
+    }
+
+    if (currentIndex === currentOrder.length - 1) {
+        showFinalResults();
+    } else {
+        showSection(currentOrder[currentIndex + 1]);
+    }
+}
+
 function setBackground(color) {
     document.documentElement.style.setProperty("--background-color", color);
+}
+
+function nextTest(currentTest) {
+    const currentIndex = currentOrder.indexOf(currentTest);
+
+    if (currentIndex === -1) {
+        console.error("Unknown test:", currentTest);
+        return;
+    }
+
+    if (currentIndex < currentOrder.length - 1) {
+        showSection(currentOrder[currentIndex + 1]);
+    } else {
+        showSection("end");
+    }
 }
 
 // Reaction Time Functions
@@ -64,7 +108,14 @@ setBackground(COLORS.default);
 // Start Button Event Listener
 startButton.addEventListener("click", function(event) {
     event.stopPropagation();
-    showSection("reaction");
+
+    const orderNumber = Number(
+        document.getElementById("orderSelect").value
+    );
+
+    currentOrder = testOrders[orderNumber - 1];
+
+    showSection(currentOrder[0]);
 });
 
 //Reaction Start Event Listener
@@ -148,7 +199,6 @@ document.body.addEventListener("click", function() {
 
 // Memory
 const memoryDigits = 12;
-const totalMemoryTrials = 3;
 let memoryScores = [];
 let memorySummaryShown = false;
 
@@ -167,8 +217,8 @@ let memoryAcceptingAnswers = false;
 
 showMemory.addEventListener("click", function(event) {
     event.stopPropagation();
-    showSection("memory");
-})
+    nextTest("reaction");
+});
 
 document.getElementById("memoryStart").addEventListener("click", function(event) {
     event.stopPropagation();
@@ -235,7 +285,7 @@ const memoryNext = document.getElementById("memoryNext");
 memoryNext.addEventListener("click", function() {
     if (memoryScores.length >= totalMemoryTrials) {
         if (memorySummaryShown) {
-            showSection("stroop");
+            nextTest("memory");
             return;
         }
 
@@ -401,7 +451,6 @@ document.addEventListener("keydown", function(event) {
     }
 });
 
-const totalStroopTrials = 30;
 let stroopResults = [];
 let stroopStartTime = 0;
 
@@ -450,11 +499,20 @@ function startStroopCountdown() {
 finish.addEventListener("click", function(event) {
     event.stopPropagation();
 
-    showSection("end");
+    nextTest("stroop");
+});
 
+function showFinalResults() {
     document.getElementById("finalResults").textContent =
         `Reaction Time: ${Reaction} ms\n` +
         `Memory Accuracy: ${memoryResults}%\n` +
         `Stroop Response Time: ${ACRT} ms\n` +
         `Stroop Accuracy: ${averageStroopAccuracy}%`;
-});
+
+    showSection("end");
+}
+    document.getElementById("finalResults").textContent =
+        `Reaction Time: ${Reaction} ms\n` +
+        `Memory Accuracy: ${memoryResults}%\n` +
+        `Stroop Response Time: ${ACRT} ms\n` +
+        `Stroop Accuracy: ${averageStroopAccuracy}%`;
