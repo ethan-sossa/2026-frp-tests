@@ -566,7 +566,7 @@ resultsForm.addEventListener("submit", async function(event) {
     try {
         await emailjs.send(
             "service_muovoel",
-            "template_f3rdyj7",
+            "template_bgkszko",
             templateParams
         );
 
