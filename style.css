@@ -98,3 +98,36 @@ section {
     white-space: pre-line;
     line-height: 2;
 }
+
+#finalResults {
+    white-space: pre-line;
+    line-height: 1.8;
+}
+
+#resultsForm {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 90%;
+    max-width: 400px;
+    margin: 24px auto;
+}
+
+#participantName,
+#participantContact {
+    padding: 12px;
+    font-size: 16px;
+    box-sizing: border-box;
+    width: 100%;
+    border-radius: 5px;
+}
+
+#sendResults:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+#sendStatus {
+    font-weight: bold;
+    min-height: 24px;
+}

@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cognitive Performance Tests</title>
     <link rel="stylesheet" href="style.css" />
+    <script
+        src="https://cdn.jsdelivr.net/npm/@emailjs/browser@5/dist/email.min.js"
+        defer>
+    </script>
     <script src="script.js" defer></script>
 </head>
 <body>
@@ -98,7 +102,49 @@
     <section id="end" style="display: none;">
         <h1>Thank you!</h1>
         <p>The test has concluded.</p>
+
         <p id="finalResults"></p>
+
+        <form id="resultsForm">
+            <label for="participantName">Name:</label>
+            <input
+                type="text"
+                id="participantName"
+                placeholder="Enter your name"
+                maxlength="100"
+                required
+            >
+
+            <label for="participantContact">Contact:</label>
+            <input
+                type="text"
+                id="participantContact"
+                placeholder="Email or other contact method"
+                maxlength="150"
+                required
+            >
+
+            <p>
+                Your information and test results will be
+                emailed to the researcher through EmailJS
+                when you submit this form.
+            </p>
+
+            <label>
+                <input type="checkbox" id="resultsConsent" required>
+                I agree to send my information and results.
+            </label>
+
+            <button
+                class="button"
+                id="sendResults"
+                type="submit"
+            >
+            SEND RESULTS
+            </button>
+
+            <p id="sendStatus" role="status"></p>
+        </form>
     </section>
 </body>
 </html>

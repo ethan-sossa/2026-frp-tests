@@ -1,3 +1,11 @@
+emailjs.init({
+    publicKey: "Gs_esq3KuDrF52UIQ",
+    blockHeadless: true,
+    limitRate: {
+        throttle: 5000
+    }
+});
+
 const DEBUG_MODE = true;
 const startButton = document.getElementById("startButton");
 const reactionMessage = document.getElementById("reactionMessage");
@@ -47,21 +55,6 @@ function showSection(sectionId) {
     section.style.display = "block";
 }
 
-function nextTest(currentTest) {
-    const currentIndex = currentOrder.indexOf(currentTest);
-
-    if (currentIndex === -1) {
-        console.error("Unknown test:", currentTest);
-        return;
-    }
-
-    if (currentIndex === currentOrder.length - 1) {
-        showFinalResults();
-    } else {
-        showSection(currentOrder[currentIndex + 1]);
-    }
-}
-
 function setBackground(color) {
     document.documentElement.style.setProperty("--background-color", color);
 }
@@ -77,7 +70,7 @@ function nextTest(currentTest) {
     if (currentIndex < currentOrder.length - 1) {
         showSection(currentOrder[currentIndex + 1]);
     } else {
-        showSection("end");
+        showFinalResults();
     }
 }
 
@@ -516,3 +509,86 @@ function showFinalResults() {
         `Memory Accuracy: ${memoryResults}%\n` +
         `Stroop Response Time: ${ACRT} ms\n` +
         `Stroop Accuracy: ${averageStroopAccuracy}%`;
+
+        // Email Submission
+
+const resultsForm = document.getElementById("resultsForm");
+const sendResults = document.getElementById("sendResults");
+const sendStatus = document.getElementById("sendStatus");
+
+let resultsSent = false;
+
+resultsForm.addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    if (resultsSent || sendResults.disabled) return;
+
+    // Verify that all tests are complete
+    if (
+        reactionTimes.length !== totalTrials ||
+        memoryScores.length !== totalMemoryTrials ||
+        !memorySummaryShown ||
+        stroopResults.length !== totalStroopTrials
+    ) {
+        sendStatus.textContent = "Please complete all tests first.";
+        return;
+    }
+
+    const name = document.getElementById("participantName").value.trim();
+    const contact = document.getElementById("participantContact").value.trim();
+
+    if (!name || !contact) {
+        sendStatus.textContent = "Please complete all fields.";
+        return;
+    }
+
+    // Prevent repeated submissions
+    sendResults.disabled = true;
+    sendResults.textContent = "SENDING...";
+    sendStatus.textContent = "";
+
+    const templateParams = {
+        participant_name: name,
+        participant_contact: contact,
+
+        submission_date: new Date().toLocaleString(),
+
+        test_order: currentOrder
+            .map(test => test[0].toUpperCase())
+            .join(""),
+
+        reaction_time: Reaction,
+        memory_accuracy: memoryResults,
+        stroop_time: ACRT === "N/A" ? "N/A" : `${ACRT} ms`,
+        stroop_accuracy: averageStroopAccuracy
+    };
+
+    try {
+        await emailjs.send(
+            "service_muovoel",
+            "template_f3rdyj7",
+            templateParams
+        );
+
+        resultsSent = true;
+
+        sendResults.textContent = "RESULTS SENT";
+        sendStatus.textContent = "Results successfully submitted!";
+        sendStatus.style.color = "#00cc00";
+
+        document.getElementById("participantName").disabled = true;
+        document.getElementById("participantContact").disabled = true;
+        document.getElementById("resultsConsent").disabled = true;
+
+    } catch (error) {
+        console.error("EmailJS error:", error);
+
+        sendStatus.textContent =
+            "Failed to send results. Please try again.";
+
+        sendStatus.style.color = "#ff3232";
+
+        sendResults.disabled = false;
+        sendResults.textContent = "SEND RESULTS";
+    }
+});
