@@ -1,5 +1,5 @@
 emailjs.init({
-    publicKey: "Gs_esq3KuDrF52UIQ",
+    publicKey: "JWPux9QGijZRQVy3a",
     blockHeadless: true,
     limitRate: {
         throttle: 5000
